@@ -3,12 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Markdown to HTML Converter</title>
+    <title>Markdown Editor & Viewer</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
     <style>
         body {
             font-family: sans-serif;
             padding: 20px;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #0056b3;
+        }
+        #markdown-tabs {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #markdown-tabs button {
+            padding: 10px 20px;
+            margin: 0 5px;
+            border: 1px solid #ccc;
+            background-color: #f8f9fa;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        #markdown-tabs button.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        #markdown-tabs button:hover:not(.active) {
+            background-color: #e9ecef;
+        }
+        #markdown-source, #markdown-output {
+            margin-top: 15px;
+            min-height: 300px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-wrap: break-word;
+        }
+        #markdown-source {
+            width: 100%;
+            box-sizing: border-box;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 1em;
+            resize: vertical;
+        }
+        #markdown-output {
+            background-color: #fff;
+            line-height: 1.6;
         }
         #markdown-output pre {
             background-color: #f4f4f4;
@@ -19,18 +73,106 @@
         #markdown-output code {
             font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
         }
+        .file-links {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .file-links a {
+            display: inline-block;
+            margin: 5px;
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .file-links a:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
-    <h1>Markdown to HTML Converter</h1>
-    <div id="markdown-output"></div>
+    <div class="container">
+        <h1>Markdown Editor & Viewer</h1>
+
+        <div id="markdown-tabs">
+            <button id="view-rendered" class="active">Rendered View</button>
+            <button id="view-source">Markdown Source</button>
+        </div>
+
+        <div id="markdown-source" contenteditable="true"># Welcome to the Markdown Editor!
+
+This is a simple Markdown editor and viewer. You can type your Markdown content here and see it rendered below. 
+
+*   **Live preview:** See your changes instantly.
+*   **Syntax Highlighting:** Code blocks are highlighted.
+
+## Features
+
+-   Tabbed interface for switching between source and rendered view.
+-   `marked.js` for Markdown parsing.
+-   `highlight.js` for code block syntax highlighting.
+
+## Example Markdown
+
+```javascript
+function greet(name) {
+    console.log(`Hello, ${name}!`);
+}
+
+greet("World");
+```
+
+This is a [link to GitHub](https://github.com).
+
+> Blockquote example.
+</div>
+        <div id="markdown-output" style="display: none;"></div>
+
+        <div class="file-links">
+            <h3>Project Files:</h3>
+            <a href="README.md" download="README.md">Download README.md</a>
+            <a href="LICENSE" download="LICENSE">Download LICENSE</a>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script>
-        const markdownText = `Hello world!\n\nThis is a test markdown file.`;
-        document.getElementById('markdown-output').innerHTML = marked.parse(markdownText);
-        hljs.highlightAll();
+        const markdownSourceElement = document.getElementById('markdown-source');
+        const markdownOutputElement = document.getElementById('markdown-output');
+        const btnRenderedView = document.getElementById('view-rendered');
+        const btnSourceView = document.getElementById('view-source');
+
+        function renderMarkdown() {
+            const markdownText = markdownSourceElement.textContent;
+            markdownOutputElement.innerHTML = marked.parse(markdownText);
+            hljs.highlightAll();
+        }
+
+        markdownSourceElement.addEventListener('input', () => {
+            renderMarkdown();
+        });
+
+        btnRenderedView.addEventListener('click', () => {
+            btnRenderedView.classList.add('active');
+            btnSourceView.classList.remove('active');
+            markdownSourceElement.style.display = 'none';
+            markdownOutputElement.style.display = 'block';
+            renderMarkdown(); // Ensure it's rendered when switching
+        });
+
+        btnSourceView.addEventListener('click', () => {
+            btnSourceView.classList.add('active');
+            btnRenderedView.classList.remove('active');
+            markdownOutputElement.style.display = 'none';
+            markdownSourceElement.style.display = 'block';
+        });
+
+        // Initial render on load
+        document.addEventListener('DOMContentLoaded', () => {
+            renderMarkdown();
+        });
     </script>
 </body>
 </html>
